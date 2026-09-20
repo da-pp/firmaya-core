@@ -1,0 +1,16 @@
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: firmaya-sqlserver
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: "Developer"
+      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD:?Debes configurar la contraseña}
+    ports:
+      - "127.0.0.1:14333:1433"
+    volumes:
+      - firmaya_data:/var/opt/mssql
+    restart: unless-stopped
+
+volumes:
+  firmaya_data:
