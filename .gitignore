@@ -36,3 +36,8 @@ build/
 .env
 .env.*
 !.env.example
+
+# CU-10: PDF finales generados en disco local (almacenamiento de desarrollo, ver
+# firmaya.documentos.directorio-almacenamiento en application.properties)
+/almacenamiento/
+cp.txt
