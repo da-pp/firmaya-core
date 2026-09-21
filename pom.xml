@@ -80,6 +80,14 @@
 			<artifactId>pdfbox</artifactId>
 			<version>2.0.26</version>
 		</dependency>
+		<!-- Documentacion interactiva de la API (Swagger UI) para probar los 69 endpoints
+		     desde el navegador en local; version 3.x es la primera linea de springdoc
+		     compatible con Spring Boot 4 / Spring Framework 7. -->
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+			<version>3.1.1</version>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa-test</artifactId>

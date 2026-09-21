@@ -65,6 +65,8 @@ public class SeguridadConfig {
                 .httpBasic(httpBasic -> httpBasic.disable())
                 .formLogin(formLogin -> formLogin.disable())
                 .authorizeHttpRequests(autorizacion -> autorizacion
+                        .requestMatchers(HttpMethod.GET, "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**")
+                        .permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/autenticacion/iniciar-sesion")
                         .permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/autenticacion/recuperacion-contrasena")
