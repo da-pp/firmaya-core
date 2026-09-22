@@ -5,6 +5,8 @@ import com.firmaya.api.accesos.SesionExternaAuthenticationFilter;
 import com.firmaya.api.comun.ErrorApiDto;
 import tools.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.List;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -15,6 +17,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 /**
  * Seguridad de FirmaYA: sin HttpSession de servlet (STATELESS) y autenticacion propia por
@@ -33,6 +38,11 @@ public class SeguridadConfig {
 
     private final ObjectMapper objectMapper;
 
+    // Origen del frontend Next.js en desarrollo; sin despliegue definido aun, se usa este
+    // valor de referencia (analogo a las URLs [PENDIENTE] de correo) documentado para revision.
+    @Value("${firmaya.frontend.origen-cors:http://localhost:3000}")
+    private String origenCorsFrontend;
+
     public SeguridadConfig(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
     }
@@ -40,6 +50,20 @@ public class SeguridadConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuracion = new CorsConfiguration();
+        configuracion.setAllowedOrigins(List.of(origenCorsFrontend));
+        configuracion.setAllowedMethods(List.of("GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"));
+        configuracion.setAllowedHeaders(List.of("Content-Type"));
+        // Necesario para que el navegador envie/reciba la cookie de sesion (httpOnly) entre
+        // el frontend (puerto 3000) y esta API (puerto 8080): mismo "site" (localhost), origen distinto.
+        configuracion.setAllowCredentials(true);
+        UrlBasedCorsConfigurationSource fuente = new UrlBasedCorsConfigurationSource();
+        fuente.registerCorsConfiguration("/api/v1/**", configuracion);
+        return fuente;
     }
 
     @Bean
@@ -60,6 +84,7 @@ public class SeguridadConfig {
                                                      SesionExternaAuthenticationFilter sesionExternaAuthenticationFilter)
             throws Exception {
         http
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(sesion -> sesion.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .httpBasic(httpBasic -> httpBasic.disable())

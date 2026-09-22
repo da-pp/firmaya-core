@@ -51,6 +51,12 @@ public class ServicioAutenticacion {
         this.duracionSesionHoras = duracionSesionHoras;
     }
 
+    // El metodo lanza CredencialesInvalidasException/CuentaBloqueadaException en varios
+    // caminos de fallo, pero el incremento de intentos_inicio_fallidos (y el bloqueo
+    // resultante a los 5 intentos, CU-19) debe persistir igual: sin noRollbackFor, la
+    // regla por defecto de @Transactional revierte esa mutacion junto con la excepcion,
+    // dejando el contador siempre en 0 y el bloqueo por intentos fallidos inalcanzable.
+    @Transactional(noRollbackFor = CredencialesInvalidasException.class)
     public ResultadoInicioSesion iniciarSesion(String correoElectronico, String contrasena, String direccionIp,
                                                 String agenteUsuario) {
         String correoNormalizado = correoElectronico.trim().toLowerCase(Locale.ROOT);
